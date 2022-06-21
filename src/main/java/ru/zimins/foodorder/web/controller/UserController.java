@@ -49,7 +49,7 @@ public class UserController {
 
     @Operation(summary = "Страница пользователей", description = "Возвращает страницу пользователей по указанным параметрам")
     @GetMapping("page")
-    public ResponseEntity<PageDto<UserDto>> findById(Pageable pageable) {
+    public ResponseEntity<PageDto<UserDto>> findPage(Pageable pageable) {
         PageDto<UserDto> userPage = mapper.toPageDto(service.findPage(pageable));
 
         return ResponseEntity.ok(userPage);
