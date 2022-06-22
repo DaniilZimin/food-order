@@ -17,7 +17,7 @@ public abstract class AbstractLongPersistable implements Persistable<Long> {
         return this.id;
     }
 
-    protected void setId(Long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
