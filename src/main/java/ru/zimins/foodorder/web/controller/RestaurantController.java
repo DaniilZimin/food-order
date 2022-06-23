@@ -66,7 +66,9 @@ public class RestaurantController {
     @PutMapping("{id}")
     public ResponseEntity<RestaurantDto> update(@RequestBody @Validated RestaurantDto restaurantDto, @PathVariable(name = "id") Long id) {
         Restaurant entity = mapper.toEntity(restaurantDto);
+
         entity.setId(id);
+
         Restaurant restaurant = service.update(entity);
 
         return ResponseEntity.ok(mapper.toDto(restaurant));

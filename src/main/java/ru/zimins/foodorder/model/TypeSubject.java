@@ -7,6 +7,7 @@ public enum TypeSubject {
     FEDERAL_CITY("Город федерального значения"),
     AUTONOMOUS_REGION("Автономная область"),
     AUTONOMOUS_DISTRICT("Автономный округ");
+
     final String description;
 
     TypeSubject(String description) {

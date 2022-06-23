@@ -8,11 +8,11 @@ import ru.zimins.foodorder.service.common.CrudService;
 public interface CityService extends CrudService<City, Long> {
 
     /**
-     * Поиск страницы сущностой по имени
+     * Поиск страницы городов по имени
      *
-     * @param nameFilter имя сущности
-     * @param pageable набор параметров для поиска страницы сущностей
-     * @return станица сущностей
+     * @param nameFilter имя города
+     * @param pageable набор параметров для поиска страницы городов
+     * @return станица городово
      */
     Page<City> findPage(String nameFilter, Pageable pageable);
 }

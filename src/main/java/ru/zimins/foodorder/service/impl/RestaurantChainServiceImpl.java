@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.webjars.NotFoundException;
 import ru.zimins.foodorder.model.RestaurantChain;
 import ru.zimins.foodorder.repository.RestaurantChainRepository;
@@ -24,8 +25,7 @@ public class RestaurantChainServiceImpl implements RestaurantChainService {
 
     @Override
     public RestaurantChain create(RestaurantChain model) {
-        boolean exists = repository.existsByNameIgnoreCase(model.getName());
-        if (exists) {
+        if (repository.existsByNameIgnoreCase(model.getName())) {
             throw new RuntimeException("Сеть ресторанов с name = '%s' уже есть в базе данных".formatted(model.getName()));
         }
         return repository.save(model);
@@ -51,9 +51,12 @@ public class RestaurantChainServiceImpl implements RestaurantChainService {
     public RestaurantChain update(RestaurantChain model) {
         Long id = model.getId();
         assert id != null;
+
         RestaurantChain restaurantChain = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Сеть ресторанов с id = %d не найдена".formatted(id)));
+
         restaurantChain.setName(model.getName());
+
         return repository.save(restaurantChain);
     }
 
@@ -61,11 +64,13 @@ public class RestaurantChainServiceImpl implements RestaurantChainService {
     public RestaurantChain deleteById(Long id) {
         RestaurantChain restaurantChain = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Сеть ресторанов с id = %d не найдена".formatted(id)));
-        if (restaurantChain.getRestaurants().isEmpty()) {
-            repository.deleteById(id);
-            return restaurantChain;
-        } else {
+
+        if (!CollectionUtils.isEmpty(restaurantChain.getRestaurants())) {
             throw new RuntimeException("В сети ресторанов '%s' есть рестораны, поэтому удалить её не удалось".formatted(restaurantChain.getName()));
         }
+
+        repository.deleteById(id);
+
+        return restaurantChain;
     }
 }

@@ -33,15 +33,9 @@ public class CityServiceImpl implements CityService {
     }
 
     @Override
-    public Page<City> findPage(Pageable pageable) {
-        return repository.findAll(pageable);
-    }
-
-    @Override
     public Page<City> findPage(String nameFilter, Pageable pageable) {
-        if (nameFilter != null) {
-            return repository.findAllByNameContainsIgnoreCase(nameFilter, pageable);
-        }
-        return repository.findAll(pageable);
+        return nameFilter == null
+                ? repository.findAll(pageable)
+                : repository.findAllByNameContainsIgnoreCase(nameFilter, pageable);
     }
 }
