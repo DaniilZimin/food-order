@@ -21,5 +21,91 @@
             </column>
         </createTable>
     </changeSet>
+
+    <changeSet id="202206221524:FO-4" author="zimin-vv">
+        <preConditions>
+            <not>
+                <tableExists tableName="restaurant_chain"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="restaurant_chain">
+            <column name="id" type="bigserial">
+                <constraints primaryKey="true" nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="varchar(64)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="202206221803:FO-4" author="zimin-vv">
+        <preConditions>
+            <not>
+                <tableExists tableName="subject"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="subject">
+            <column name="id" type="bigserial">
+                <constraints primaryKey="true" nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="varchar(64)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="type" type="varchar(128)">
+                <constraints nullable="false" unique="false"/>
+            </column>
+            <column name="code_okato" type="int">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="202206221802:FO-4" author="zimin-vv">
+        <preConditions>
+            <not>
+                <tableExists tableName="city"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="city">
+            <column name="id" type="bigserial">
+                <constraints primaryKey="true" nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="varchar(64)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="subject_id" type="bigint">
+                <constraints nullable="false" unique="false" referencedTableName="subject" referencedColumnNames="id" foreignKeyName="subject_id"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="202206221757:FO-4" author="zimin-vv">
+        <preConditions>
+            <not>
+                <tableExists tableName="restaurant"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="restaurant">
+            <column name="id" type="bigserial">
+                <constraints primaryKey="true" nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="varchar(64)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="restaurant_chain_id" type="bigint">
+                <constraints nullable="true" unique="false" referencedTableName="restaurant_chain" referencedColumnNames="id" foreignKeyName="restaurant_chain_id"/>
+            </column>
+            <column name="city_id" type="bigint">
+                <constraints nullable="false" unique="false" referencedTableName="city" referencedColumnNames="id" foreignKeyName="city_id"/>
+            </column>
+            <column name="address" type="varchar(128)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
     
 </databaseChangeLog>
