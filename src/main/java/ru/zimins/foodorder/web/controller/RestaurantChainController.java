@@ -65,11 +65,9 @@ public class RestaurantChainController {
     @Operation(summary = "Изменение сети ресторанов", description = "Возвращает изменённую сеть ресторанов")
     @PutMapping("{id}")
     public ResponseEntity<RestaurantChainDto> update(@RequestBody @Validated RestaurantChainDto restaurantChainDto, @PathVariable(name = "id") Long id) {
-        RestaurantChain entity = mapper.toEntity(restaurantChainDto);
+        restaurantChainDto.setId(id);
 
-        entity.setId(id);
-
-        RestaurantChain restaurantChain = service.update(entity);
+        RestaurantChain restaurantChain = service.update(mapper.toEntity(restaurantChainDto));
 
         return ResponseEntity.ok(mapper.toDto(restaurantChain));
     }

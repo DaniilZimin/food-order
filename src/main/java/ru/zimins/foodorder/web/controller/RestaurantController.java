@@ -65,16 +65,14 @@ public class RestaurantController {
     @Operation(summary = "Изменение ресторана", description = "Возвращает изменённый ресторан")
     @PutMapping("{id}")
     public ResponseEntity<RestaurantDto> update(@RequestBody @Validated RestaurantDto restaurantDto, @PathVariable(name = "id") Long id) {
-        Restaurant entity = mapper.toEntity(restaurantDto);
+        restaurantDto.setId(id);
 
-        entity.setId(id);
-
-        Restaurant restaurant = service.update(entity);
+        Restaurant restaurant = service.update(mapper.toEntity(restaurantDto));
 
         return ResponseEntity.ok(mapper.toDto(restaurant));
     }
 
-    @Operation(summary = "Удаление сети ресторанов по идентификатору", description = "Возвращает удалённую сеть ресторанов")
+    @Operation(summary = "Удаление ресторана по идентификатору", description = "Возвращает удалённый ресторан")
     @DeleteMapping("{id}")
     public ResponseEntity<RestaurantDto> delete(@PathVariable(name = "id") Long id) {
         RestaurantDto restaurant = mapper.toDto(service.deleteById(id));

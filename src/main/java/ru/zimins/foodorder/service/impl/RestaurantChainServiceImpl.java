@@ -11,7 +11,6 @@ import ru.zimins.foodorder.repository.RestaurantChainRepository;
 import ru.zimins.foodorder.service.RestaurantChainService;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class RestaurantChainServiceImpl implements RestaurantChainService {

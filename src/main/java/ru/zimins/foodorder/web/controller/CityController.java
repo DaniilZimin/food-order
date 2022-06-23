@@ -44,7 +44,7 @@ public class CityController {
         return ResponseEntity.ok(user);
     }
 
-    @Operation(summary = "Страница городов", description = "Возвращает страницу гоордов по указанным параметрам")
+    @Operation(summary = "Страница городов", description = "Возвращает страницу городов по указанным параметрам")
     @GetMapping("page")
     public ResponseEntity<PageDto<CityDto>> findPage(@RequestParam(required = false) String nameFilter, Pageable pageable) {
         PageDto<CityDto> cityPage = mapper.toPageDto(service.findPage(nameFilter, pageable));
