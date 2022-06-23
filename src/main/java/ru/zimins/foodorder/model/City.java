@@ -8,6 +8,7 @@ import ru.zimins.foodorder.model.common.AbstractLongPersistable;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,9 +24,9 @@ public class City extends AbstractLongPersistable {
     @Column(name = "name")
     private String name;
 
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "subject_id")
-    @NotBlank
     private Subject subject;
 
     @OneToMany(mappedBy = "city")

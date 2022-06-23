@@ -8,6 +8,7 @@ import ru.zimins.foodorder.model.common.AbstractLongPersistable;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,14 +24,14 @@ public class Subject extends AbstractLongPersistable {
     @Column(name = "name")
     private String name;
 
-    @NotBlank
+    @NotNull
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
     private TypeSubject type;
 
-    @NotBlank
+    @NotNull
     @Column(name = "code_okato")
-    private int codeOKATO;
+    private Integer codeOkato;
 
     @OneToMany(mappedBy = "subject")
     List<City> cities;

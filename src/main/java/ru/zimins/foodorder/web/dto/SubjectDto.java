@@ -12,5 +12,5 @@ public class SubjectDto {
 
     private TypeSubject type;
 
-    private int codeOKATO;
+    private Integer codeOkato;
 }

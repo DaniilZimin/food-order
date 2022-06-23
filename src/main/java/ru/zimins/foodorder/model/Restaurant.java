@@ -8,6 +8,7 @@ import ru.zimins.foodorder.model.common.AbstractLongPersistable;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
@@ -25,7 +26,7 @@ public class Restaurant extends AbstractLongPersistable {
     @JoinColumn(name = "restaurant_chain_id")
     private RestaurantChain restaurantChain;
 
-    @NotBlank
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "city_id")
     private City city;

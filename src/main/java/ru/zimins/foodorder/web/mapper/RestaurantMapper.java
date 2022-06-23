@@ -7,5 +7,5 @@ import ru.zimins.foodorder.web.mapper.common.WebMapper;
 import ru.zimins.foodorder.web.mapper.config.WebMapperConfig;
 
 @Mapper(config = WebMapperConfig.class)
-public interface RestaurantMapper  extends WebMapper<Restaurant, RestaurantDto> {
+public interface RestaurantMapper extends WebMapper<Restaurant, RestaurantDto> {
 }

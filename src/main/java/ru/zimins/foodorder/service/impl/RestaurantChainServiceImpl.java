@@ -24,8 +24,8 @@ public class RestaurantChainServiceImpl implements RestaurantChainService {
 
     @Override
     public RestaurantChain create(RestaurantChain model) {
-        Optional<RestaurantChain> byName = repository.findByName(model.getName());
-        if (byName.isPresent()) {
+        boolean exists = repository.existsByNameIgnoreCase(model.getName());
+        if (exists) {
             throw new RuntimeException("Сеть ресторанов с name = '%s' уже есть в базе данных".formatted(model.getName()));
         }
         return repository.save(model);
@@ -51,25 +51,21 @@ public class RestaurantChainServiceImpl implements RestaurantChainService {
     public RestaurantChain update(RestaurantChain model) {
         Long id = model.getId();
         assert id != null;
-        Optional<RestaurantChain> optional = repository.findById(id);
-        if (optional.isPresent()) {
-            optional.get().setName(model.getName());
-            return repository.save(optional.get());
-        }
-        throw new NotFoundException("Сеть ресторанов с id = %d не найдена".formatted(id));
+        RestaurantChain restaurantChain = repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Сеть ресторанов с id = %d не найдена".formatted(id)));
+        restaurantChain.setName(model.getName());
+        return repository.save(restaurantChain);
     }
 
     @Override
     public RestaurantChain deleteById(Long id) {
-        Optional<RestaurantChain> optional = repository.findById(id);
-        if (optional.isPresent()) {
-            if (optional.get().getRestaurants().isEmpty()) {
-                repository.deleteById(id);
-                return optional.get();
-            } else {
-                throw new RuntimeException("В сети ресторанов '%s' есть рестораны, поэтому удалить её не удалось".formatted(optional.get().getName()));
-            }
+        RestaurantChain restaurantChain = repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Сеть ресторанов с id = %d не найдена".formatted(id)));
+        if (restaurantChain.getRestaurants().isEmpty()) {
+            repository.deleteById(id);
+            return restaurantChain;
+        } else {
+            throw new RuntimeException("В сети ресторанов '%s' есть рестораны, поэтому удалить её не удалось".formatted(restaurantChain.getName()));
         }
-        throw new NotFoundException("Сеть ресторанов с id = %d не найдена".formatted(id));
     }
 }

@@ -34,31 +34,31 @@ public class RestaurantServiceImpl implements RestaurantService {
 
     @Override
     public Restaurant create(Restaurant model) {
-        Optional<Restaurant> byName = repository.findByName(model.getName());
-        Optional<Restaurant> byAddress = repository.findByAddress(model.getAddress());
-        if (byName.isPresent()) {
+        boolean existsByName = repository.existsByNameIgnoreCase(model.getName());
+        boolean existsByAddress = repository.existsByAddressIgnoreCase(model.getAddress());
+        if (existsByName) {
             throw new RuntimeException("Ресторан с name = '%s' уже есть в базе данных".formatted(model.getName()));
         }
-        if (byAddress.isPresent()) {
-            throw new RuntimeException("Ресторан с адресом = '%s' уже есть в базе данных".formatted(byAddress.get().getAddress()));
+        if (existsByAddress) {
+            throw new RuntimeException("Ресторан с адресом = '%s' уже есть в базе данных".formatted(model.getAddress()));
         }
         Restaurant restaurant = repository.save(model);
         if (model.getRestaurantChain() != null) {
             Long restaurantChainId = model.getRestaurantChain().getId();
             assert restaurantChainId != null;
             Optional<RestaurantChain> restaurantChain = restaurantChainRepository.findById(restaurantChainId);
-            if (restaurantChain.isPresent()) {
-                restaurantChain.get().addRestaurant(restaurant);
-                restaurantChainRepository.save(restaurantChain.get());
-            }
+            restaurantChain.ifPresent(chain -> {
+                chain.addRestaurant(restaurant);
+                restaurantChainRepository.save(chain);
+            });
         }
         Long cityId = model.getCity().getId();
         assert cityId != null;
         Optional<City> city = cityRepository.findById(cityId);
-        if (city.isPresent()) {
-            city.get().addRestaurant(restaurant);
-            cityRepository.save(city.get());
-        }
+        city.ifPresent(value -> {
+            value.addRestaurant(restaurant);
+            cityRepository.save(value);
+        });
         return restaurant;
     }
 
@@ -82,47 +82,35 @@ public class RestaurantServiceImpl implements RestaurantService {
     public Restaurant update(Restaurant model) {
         Long id = model.getId();
         assert id != null;
-        Optional<Restaurant> optional = repository.findById(id);
-        if (optional.isPresent()) {
-            Restaurant restaurant = optional.get();
-            if (model.getName() != null) {
-                restaurant.setName(model.getName());
-            }
-            if (model.getAddress() != null) {
-                restaurant.setAddress(model.getAddress());
-            }
-            if (model.getRestaurantChain() != null) {
-                Long restaurantChainId = model.getRestaurantChain().getId();
-                assert restaurantChainId != null;
-                Optional<RestaurantChain> optionalRestaurantChain = restaurantChainRepository.findById(restaurantChainId);
-                if (optionalRestaurantChain.isPresent()) {
-                    restaurant.setRestaurantChain(optionalRestaurantChain.get());
-                } else {
-                    throw new NotFoundException("Сеть ресторанов с id = %d не найдена".formatted(restaurantChainId));
-                }
-            }
-            if (model.getCity() != null) {
-                Long cityId = model.getCity().getId();
-                assert cityId != null;
-                Optional<City> city = cityRepository.findById(cityId);
-                if (city.isPresent()) {
-                    restaurant.setCity(city.get());
-                } else {
-                    throw new NotFoundException("Город с id = %d не найден".formatted(cityId));
-                }
-            }
-            return repository.save(restaurant);
+        Restaurant restaurant = repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Ресторан с id = %d не найден".formatted(id)));
+        if (model.getName() != null) {
+            restaurant.setName(model.getName());
         }
-        throw new NotFoundException("Ресторан с id = %d не найден".formatted(id));
+        if (model.getAddress() != null) {
+            restaurant.setAddress(model.getAddress());
+        }
+        if (model.getRestaurantChain() != null) {
+            Long restaurantChainId = model.getRestaurantChain().getId();
+            assert restaurantChainId != null;
+            RestaurantChain restaurantChain = restaurantChainRepository.findById(restaurantChainId)
+                    .orElseThrow(() -> new NotFoundException("Сеть ресторанов с id = %d не найдена".formatted(restaurantChainId)));
+            restaurant.setRestaurantChain(restaurantChain);
+        }
+        if (model.getCity() != null) {
+            Long cityId = model.getCity().getId();
+            assert cityId != null;
+            City city = cityRepository.findById(cityId)
+                    .orElseThrow(() -> new NotFoundException("Город с id = %d не найден".formatted(cityId)));
+            restaurant.setCity(city);
+        }
+        return repository.save(restaurant);
     }
 
     @Override
     public Restaurant deleteById(Long id) {
-        Optional<Restaurant> optional = repository.findById(id);
-        if (optional.isPresent()) {
-            repository.deleteById(id);
-            return optional.get();
-        }
-        throw new NotFoundException("Ресторан с id = %d не найден".formatted(id));
+        Restaurant restaurant = repository.findById(id).orElseThrow(() -> new NotFoundException("Ресторан с id = %d не найден".formatted(id)));
+        repository.deleteById(id);
+        return restaurant;
     }
 }
