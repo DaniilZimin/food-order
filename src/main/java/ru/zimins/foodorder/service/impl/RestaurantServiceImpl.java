@@ -126,7 +126,8 @@ public class RestaurantServiceImpl implements RestaurantService {
 
     @Override
     public Restaurant deleteById(Long id) {
-        Restaurant restaurant = repository.findById(id).orElseThrow(() -> new NotFoundException("Ресторан с id = %d не найден".formatted(id)));
+        Restaurant restaurant = repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Ресторан с id = %d не найден".formatted(id)));
 
         repository.deleteById(id);
 

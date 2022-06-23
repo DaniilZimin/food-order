@@ -10,9 +10,9 @@ public interface CityService extends CrudService<City, Long> {
     /**
      * Поиск страницы городов по имени
      *
-     * @param nameFilter имя города
+     * @param nameFilter название города
      * @param pageable набор параметров для поиска страницы городов
-     * @return станица городово
+     * @return страница городов
      */
     Page<City> findPage(String nameFilter, Pageable pageable);
 }
