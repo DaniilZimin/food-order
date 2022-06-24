@@ -33,35 +33,25 @@ public class MenuItemServiceImpl implements MenuItemService {
 
     @Override
     public MenuItem create(MenuItem model) {
+        if (model.getMenuItemCategory() != null && model.getRestaurant() != null) {
 
-        Long menuItemCategoryId = model.getMenuItemCategory().getId();
-        assert menuItemCategoryId != null;
+            MenuItem menuItem = repository.save(model);
 
-        MenuItemCategory menuItemCategory = menuItemCategoryRepository.findById(menuItemCategoryId)
-                .orElseThrow(() -> new NotFoundException("Категория пункта меню с id = %d не найдена".formatted(menuItemCategoryId)));
+            getMenuItemCategory(model).addMenuItem(menuItem);
+            menuItemCategoryRepository.save(getMenuItemCategory(model));
 
-        Long restaurantId = model.getRestaurant().getId();
-        assert restaurantId != null;
+            getRestaurant(model).addMenuItem(menuItem);
+            restaurantRepository.save(getRestaurant(model));
 
-        Restaurant restaurant = restaurantRepository.findById(restaurantId)
-                .orElseThrow(() -> new NotFoundException("Ресторан с id = %d не найден".formatted(restaurantId)));
+            return menuItem;
+        }
 
-        MenuItem menuItem = repository.save(model);
-
-        menuItemCategory.addMenuItem(menuItem);
-        menuItemCategoryRepository.save(menuItemCategory);
-
-        restaurant.addMenuItem(menuItem);
-        restaurantRepository.save(restaurant);
-
-        return menuItem;
+        return repository.save(model);
     }
 
     @Override
     public List<MenuItem> findAllByRestaurantId(Long id) {
-        Restaurant restaurant = restaurantRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Ресторан с id = %d не найден".formatted(id)));
-        return restaurant.getMenuItems();
+        return getRestaurant(id).getMenuItems();
     }
 
     @Override
@@ -72,22 +62,14 @@ public class MenuItemServiceImpl implements MenuItemService {
 
     @Override
     public Page<MenuItem> findPage(Long id, String nameFilter, Pageable pageable) {
-        Restaurant restaurant = restaurantRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Ресторан с id = %d не найден".formatted(id)));
-
         return nameFilter == null
-                ? repository.findAllByRestaurant(restaurant, pageable)
-                : repository.findAllByRestaurantAndNameContainsIgnoreCase(restaurant, nameFilter, pageable);
+                ? repository.findAllByRestaurant(getRestaurant(id), pageable)
+                : repository.findAllByRestaurantAndNameContainsIgnoreCase(getRestaurant(id), nameFilter, pageable);
     }
 
     @Override
     public MenuItem update(MenuItem model) {
-
-        Long id = model.getId();
-        assert id != null;
-
-        MenuItem menuItem = repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Пункт меню с id = %d не найден".formatted(id)));
+        MenuItem menuItem = findById(model.getId());
 
         if (model.getName() != null) {
             menuItem.setName(model.getName());
@@ -130,23 +112,11 @@ public class MenuItemServiceImpl implements MenuItemService {
         }
 
         if (model.getMenuItemCategory() != null) {
-            Long menuItemCategoryId = model.getMenuItemCategory().getId();
-            assert menuItemCategoryId != null;
-
-            MenuItemCategory menuItemCategory = menuItemCategoryRepository.findById(menuItemCategoryId)
-                    .orElseThrow(() -> new NotFoundException("Категория пункта меню с id = %d не найдена".formatted(menuItemCategoryId)));
-
-            menuItem.setMenuItemCategory(menuItemCategory);
+            menuItem.setMenuItemCategory(getMenuItemCategory(model));
         }
 
         if (model.getRestaurant() != null) {
-            Long restaurantId = model.getRestaurant().getId();
-            assert restaurantId != null;
-
-            Restaurant restaurant = restaurantRepository.findById(restaurantId)
-                    .orElseThrow(() -> new NotFoundException("Ресторан с id = %d не найден".formatted(restaurantId)));
-
-            menuItem.setRestaurant(restaurant);
+            menuItem.setRestaurant(getRestaurant(model));
         }
 
         return repository.save(menuItem);
@@ -154,11 +124,31 @@ public class MenuItemServiceImpl implements MenuItemService {
 
     @Override
     public MenuItem deleteById(Long id) {
-        MenuItem menuItem = repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Пункт меню с id = %d не найден".formatted(id)));
+        MenuItem menuItem = findById(id);
 
         repository.deleteById(id);
 
         return menuItem;
+    }
+
+    private Restaurant getRestaurant(Long id) {
+        return restaurantRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Ресторан с id = %d не найден".formatted(id)));
+    }
+
+    private Restaurant getRestaurant(MenuItem model) {
+        Long id = model.getRestaurant().getId();
+        assert id != null;
+
+        return restaurantRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Ресторан с id = %d не найден".formatted(id)));
+    }
+
+    private MenuItemCategory getMenuItemCategory(MenuItem model) {
+        Long id = model.getMenuItemCategory().getId();
+        assert id != null;
+
+        return menuItemCategoryRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Категория пункта меню с id = %d не найдена".formatted(id)));
     }
 }

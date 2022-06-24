@@ -14,7 +14,6 @@ import ru.zimins.foodorder.repository.RestaurantRepository;
 import ru.zimins.foodorder.service.RestaurantService;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class RestaurantServiceImpl implements RestaurantService {
@@ -45,26 +44,14 @@ public class RestaurantServiceImpl implements RestaurantService {
         Restaurant restaurant = repository.save(model);
 
         if (model.getRestaurantChain() != null) {
-            Long restaurantChainId = model.getRestaurantChain().getId();
-            assert restaurantChainId != null;
-
-            Optional<RestaurantChain> restaurantChain = restaurantChainRepository.findById(restaurantChainId);
-
-            restaurantChain.ifPresent(chain -> {
-                chain.addRestaurant(restaurant);
-                restaurantChainRepository.save(chain);
-            });
+            getRestaurantChain(model).addRestaurant(restaurant);
+            restaurantChainRepository.save(getRestaurantChain(model));
         }
 
-        Long cityId = model.getCity().getId();
-        assert cityId != null;
-
-        Optional<City> city = cityRepository.findById(cityId);
-
-        city.ifPresent(value -> {
-            value.addRestaurant(restaurant);
-            cityRepository.save(value);
-        });
+        if (model.getCity() != null) {
+            getCity(model).addRestaurant(restaurant);
+            cityRepository.save(getCity(model));
+        }
 
         return restaurant;
     }
@@ -87,11 +74,7 @@ public class RestaurantServiceImpl implements RestaurantService {
 
     @Override
     public Restaurant update(Restaurant model) {
-        Long id = model.getId();
-        assert id != null;
-
-        Restaurant restaurant = repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Ресторан с id = %d не найден".formatted(id)));
+        Restaurant restaurant = findById(model.getId());
 
         if (model.getName() != null) {
             restaurant.setName(model.getName());
@@ -102,23 +85,11 @@ public class RestaurantServiceImpl implements RestaurantService {
         }
 
         if (model.getRestaurantChain() != null) {
-            Long restaurantChainId = model.getRestaurantChain().getId();
-            assert restaurantChainId != null;
-
-            RestaurantChain restaurantChain = restaurantChainRepository.findById(restaurantChainId)
-                    .orElseThrow(() -> new NotFoundException("Сеть ресторанов с id = %d не найдена".formatted(restaurantChainId)));
-
-            restaurant.setRestaurantChain(restaurantChain);
+            restaurant.setRestaurantChain(getRestaurantChain(model));
         }
 
         if (model.getCity() != null) {
-            Long cityId = model.getCity().getId();
-            assert cityId != null;
-
-            City city = cityRepository.findById(cityId)
-                    .orElseThrow(() -> new NotFoundException("Город с id = %d не найден".formatted(cityId)));
-
-            restaurant.setCity(city);
+            restaurant.setCity(getCity(model));
         }
 
         return repository.save(restaurant);
@@ -126,11 +97,26 @@ public class RestaurantServiceImpl implements RestaurantService {
 
     @Override
     public Restaurant deleteById(Long id) {
-        Restaurant restaurant = repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Ресторан с id = %d не найден".formatted(id)));
+        Restaurant restaurant = findById(id);
 
         repository.deleteById(id);
 
         return restaurant;
+    }
+
+    private City getCity(Restaurant model) {
+        Long id = model.getCity().getId();
+        assert id != null;
+
+        return cityRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Город с id = %d не найден".formatted(id)));
+    }
+
+    private RestaurantChain getRestaurantChain(Restaurant model) {
+        Long id = model.getRestaurantChain().getId();
+        assert id != null;
+
+        return restaurantChainRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Сеть ресторанов с id = %d не найдена".formatted(id)));
     }
 }

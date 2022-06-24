@@ -48,21 +48,14 @@ public class RestaurantChainServiceImpl implements RestaurantChainService {
 
     @Override
     public RestaurantChain update(RestaurantChain model) {
-        Long id = model.getId();
-        assert id != null;
+        findById(model.getId()).setName(model.getName());
 
-        RestaurantChain restaurantChain = repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Сеть ресторанов с id = %d не найдена".formatted(id)));
-
-        restaurantChain.setName(model.getName());
-
-        return repository.save(restaurantChain);
+        return repository.save(findById(model.getId()));
     }
 
     @Override
     public RestaurantChain deleteById(Long id) {
-        RestaurantChain restaurantChain = repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Сеть ресторанов с id = %d не найдена".formatted(id)));
+        RestaurantChain restaurantChain = findById(id);
 
         if (!CollectionUtils.isEmpty(restaurantChain.getRestaurants())) {
             throw new RuntimeException("В сети ресторанов '%s' есть рестораны, поэтому удалить её не удалось".formatted(restaurantChain.getName()));
