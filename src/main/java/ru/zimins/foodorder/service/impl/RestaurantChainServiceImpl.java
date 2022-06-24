@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.webjars.NotFoundException;
+import ru.zimins.foodorder.exception.ValidationException;
 import ru.zimins.foodorder.model.RestaurantChain;
 import ru.zimins.foodorder.repository.RestaurantChainRepository;
 import ru.zimins.foodorder.service.RestaurantChainService;
@@ -26,7 +27,7 @@ public class RestaurantChainServiceImpl implements RestaurantChainService {
     @Override
     public RestaurantChain create(RestaurantChain model) {
         if (repository.existsByNameIgnoreCase(model.getName())) {
-            throw new RuntimeException("Сеть ресторанов с name = '%s' уже есть в базе данных".formatted(model.getName()));
+            throw new ValidationException("Сеть ресторанов с name = '%s' уже есть в базе данных".formatted(model.getName()));
         }
         return repository.save(model);
     }
@@ -66,7 +67,7 @@ public class RestaurantChainServiceImpl implements RestaurantChainService {
                 .orElseThrow(() -> new NotFoundException("Сеть ресторанов с id = %d не найдена".formatted(id)));
 
         if (!CollectionUtils.isEmpty(restaurantChain.getRestaurants())) {
-            throw new RuntimeException("В сети ресторанов '%s' есть рестораны, поэтому удалить её не удалось".formatted(restaurantChain.getName()));
+            throw new ValidationException("В сети ресторанов '%s' есть рестораны, поэтому удалить её не удалось".formatted(restaurantChain.getName()));
         }
 
         repository.deleteById(id);
