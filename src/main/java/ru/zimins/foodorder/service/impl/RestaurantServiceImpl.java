@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
+import ru.zimins.foodorder.exception.ValidationException;
 import ru.zimins.foodorder.model.City;
 import ru.zimins.foodorder.model.Restaurant;
 import ru.zimins.foodorder.model.RestaurantChain;
@@ -35,11 +36,11 @@ public class RestaurantServiceImpl implements RestaurantService {
     @Override
     public Restaurant create(Restaurant model) {
         if (repository.existsByNameIgnoreCase(model.getName())) {
-            throw new RuntimeException("Ресторан с name = '%s' уже есть в базе данных".formatted(model.getName()));
+            throw new ValidationException("Ресторан с name = '%s' уже есть в базе данных".formatted(model.getName()));
         }
 
         if (repository.existsByAddressIgnoreCase(model.getAddress())) {
-            throw new RuntimeException("Ресторан с адресом = '%s' уже есть в базе данных".formatted(model.getAddress()));
+            throw new ValidationException("Ресторан с адресом = '%s' уже есть в базе данных".formatted(model.getAddress()));
         }
 
         Restaurant restaurant = repository.save(model);
