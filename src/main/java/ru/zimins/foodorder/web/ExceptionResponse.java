@@ -9,7 +9,7 @@ import java.time.OffsetDateTime;
 @Builder
 public class ExceptionResponse {
 
-    OffsetDateTime timestamp;
-    Integer code;
-    String message;
+    private OffsetDateTime timestamp;
+    private Integer code;
+    private String message;
 }
