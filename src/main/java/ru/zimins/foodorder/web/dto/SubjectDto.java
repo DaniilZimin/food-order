@@ -1,7 +1,7 @@
 package ru.zimins.foodorder.web.dto;
 
 import lombok.Data;
-import ru.zimins.foodorder.model.TypeSubject;
+import ru.zimins.foodorder.model.SubjectType;
 
 @Data
 public class SubjectDto {
@@ -10,7 +10,7 @@ public class SubjectDto {
 
     private String name;
 
-    private TypeSubject type;
+    private SubjectType type;
 
     private Integer codeOkato;
 }

@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.webjars.NotFoundException;
+import ru.zimins.foodorder.exception.ValidationException;
 import ru.zimins.foodorder.model.MenuItemCategory;
 import ru.zimins.foodorder.model.Restaurant;
 import ru.zimins.foodorder.repository.MenuItemCategoryRepository;
@@ -30,9 +31,9 @@ public class MenuItemCategoryServiceImpl implements MenuItemCategoryService {
     @Override
     public MenuItemCategory create(MenuItemCategory model) {
         if (model.getRestaurant() != null) {
-            MenuItemCategory menuItemCategory = repository.save(model);
-
             Restaurant restaurant = getRestaurant(model);
+
+            MenuItemCategory menuItemCategory = repository.save(model);
 
             restaurant.addMenuItemCategory(menuItemCategory);
             restaurantRepository.save(restaurant);
@@ -71,11 +72,11 @@ public class MenuItemCategoryServiceImpl implements MenuItemCategoryService {
         MenuItemCategory menuItemCategory = getMenuItemCategory(id);
 
         if (menuItemCategory.getRestaurant() == null) {
-            throw new RuntimeException("Категорию пункта меню с нулевым рестораном нельзя удалять");
+            throw new ValidationException("Данную категорию удалить нельзя!");
         }
 
         if (!CollectionUtils.isEmpty(menuItemCategory.getMenuItems())) {
-            throw new RuntimeException("В категории '%s' есть пункты меню, поэтому удалить её не удалось".formatted(menuItemCategory.getName()));
+            throw new ValidationException("В категории '%s' есть пункты меню, поэтому удалить её не удалось".formatted(menuItemCategory.getName()));
         }
 
         repository.deleteById(id);

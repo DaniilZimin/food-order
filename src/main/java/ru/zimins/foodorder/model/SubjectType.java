@@ -1,6 +1,6 @@
 package ru.zimins.foodorder.model;
 
-public enum TypeSubject {
+public enum SubjectType {
     REPUBLIC("Республика"),
     EDGE("Край"),
     REGION("Регион"),
@@ -10,7 +10,7 @@ public enum TypeSubject {
 
     final String description;
 
-    TypeSubject(String description) {
+    SubjectType(String description) {
         this.description = description;
     }
 }

@@ -27,7 +27,7 @@ public class Subject extends AbstractLongPersistable {
     @NotNull
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
-    private TypeSubject type;
+    private SubjectType type;
 
     @NotNull
     @Column(name = "code_okato")
