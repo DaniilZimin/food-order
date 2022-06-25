@@ -32,8 +32,10 @@ public class MenuItemCategoryServiceImpl implements MenuItemCategoryService {
         if (model.getRestaurant() != null) {
             MenuItemCategory menuItemCategory = repository.save(model);
 
-            getRestaurant(model).addMenuItemCategory(menuItemCategory);
-            restaurantRepository.save(getRestaurant(model));
+            Restaurant restaurant = getRestaurant(model);
+
+            restaurant.addMenuItemCategory(menuItemCategory);
+            restaurantRepository.save(restaurant);
         }
 
         return repository.save(model);

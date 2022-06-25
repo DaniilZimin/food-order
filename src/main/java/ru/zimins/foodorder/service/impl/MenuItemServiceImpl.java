@@ -37,11 +37,15 @@ public class MenuItemServiceImpl implements MenuItemService {
 
             MenuItem menuItem = repository.save(model);
 
-            getMenuItemCategory(model).addMenuItem(menuItem);
-            menuItemCategoryRepository.save(getMenuItemCategory(model));
+            MenuItemCategory menuItemCategory = getMenuItemCategory(model);
 
-            getRestaurant(model).addMenuItem(menuItem);
-            restaurantRepository.save(getRestaurant(model));
+            menuItemCategory.addMenuItem(menuItem);
+            menuItemCategoryRepository.save(menuItemCategory);
+
+            Restaurant restaurant = getRestaurant(model);
+
+            restaurant.addMenuItem(menuItem);
+            restaurantRepository.save(restaurant);
 
             return menuItem;
         }

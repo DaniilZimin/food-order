@@ -44,13 +44,17 @@ public class RestaurantServiceImpl implements RestaurantService {
         Restaurant restaurant = repository.save(model);
 
         if (model.getRestaurantChain() != null) {
-            getRestaurantChain(model).addRestaurant(restaurant);
-            restaurantChainRepository.save(getRestaurantChain(model));
+            RestaurantChain restaurantChain = getRestaurantChain(model);
+
+            restaurantChain.addRestaurant(restaurant);
+            restaurantChainRepository.save(restaurantChain);
         }
 
         if (model.getCity() != null) {
-            getCity(model).addRestaurant(restaurant);
-            cityRepository.save(getCity(model));
+            City city = getCity(model);
+
+            city.addRestaurant(restaurant);
+            cityRepository.save(city);
         }
 
         return restaurant;
