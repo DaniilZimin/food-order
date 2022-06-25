@@ -12,7 +12,6 @@ import ru.zimins.foodorder.repository.RestaurantChainRepository;
 import ru.zimins.foodorder.service.RestaurantChainService;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class RestaurantChainServiceImpl implements RestaurantChainService {
@@ -50,21 +49,14 @@ public class RestaurantChainServiceImpl implements RestaurantChainService {
 
     @Override
     public RestaurantChain update(RestaurantChain model) {
-        Long id = model.getId();
-        assert id != null;
+        findById(model.getId()).setName(model.getName());
 
-        RestaurantChain restaurantChain = repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Сеть ресторанов с id = %d не найдена".formatted(id)));
-
-        restaurantChain.setName(model.getName());
-
-        return repository.save(restaurantChain);
+        return repository.save(findById(model.getId()));
     }
 
     @Override
     public RestaurantChain deleteById(Long id) {
-        RestaurantChain restaurantChain = repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Сеть ресторанов с id = %d не найдена".formatted(id)));
+        RestaurantChain restaurantChain = findById(id);
 
         if (!CollectionUtils.isEmpty(restaurantChain.getRestaurants())) {
             throw new ValidationException("В сети ресторанов '%s' есть рестораны, поэтому удалить её не удалось".formatted(restaurantChain.getName()));

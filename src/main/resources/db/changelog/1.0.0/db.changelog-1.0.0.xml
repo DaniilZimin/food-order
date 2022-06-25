@@ -107,5 +107,90 @@
             </column>
         </createTable>
     </changeSet>
+
+    <changeSet id="202206240019:FO-5" author="zimin-vv">
+        <preConditions>
+            <not>
+                <tableExists tableName="menu_item_category"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="menu_item_category">
+            <column name="id" type="bigserial">
+                <constraints primaryKey="true" nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="varchar(64)">
+                <constraints nullable="false" unique="false"/>
+            </column>
+            <column name="restaurant_id" type="bigint">
+                <constraints nullable="true" unique="false" referencedTableName="restaurant" referencedColumnNames="id" foreignKeyName="restaurant_id"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="202206240004:FO-5" author="zimin-vv">
+        <preConditions>
+            <not>
+                <tableExists tableName="menu_item"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="menu_item">
+            <column name="id" type="bigserial">
+                <constraints primaryKey="true" nullable="false" unique="true"/>
+            </column>
+            <column name="name" type="varchar(64)">
+                <constraints nullable="false" unique="false"/>
+            </column>
+            <column name="description" type="varchar(256)">
+                <constraints nullable="false" unique="false"/>
+            </column>
+            <column name="menu_item_category_id" type="bigint">
+                <constraints nullable="false" unique="false" referencedTableName="menu_item_category" referencedColumnNames="id" foreignKeyName="menu_item_category_id"/>
+            </column>
+            <column name="price" type="int">
+                <constraints nullable="false" unique="false"/>
+            </column>
+            <column name="weight" type="double">
+                <constraints nullable="false" unique="false"/>
+            </column>
+            <column name="unit" type="varchar(8)">
+                <constraints nullable="false" unique="false"/>
+            </column>
+            <column name="composition" type="varchar(128)">
+                <constraints nullable="false" unique="false"/>
+            </column>
+            <column name="kcal" type="smallint">
+                <constraints nullable="false" unique="false"/>
+            </column>
+            <column name="proteins" type="smallint">
+                <constraints nullable="false" unique="false"/>
+            </column>
+            <column name="fats" type="smallint">
+                <constraints nullable="false" unique="false"/>
+            </column>
+            <column name="carbohydrates" type="smallint">
+                <constraints nullable="false" unique="false"/>
+            </column>
+            <column name="restaurant_id" type="bigint">
+                <constraints nullable="false" unique="false" referencedTableName="restaurant" referencedColumnNames="id" foreignKeyName="restaurant_id"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="202206240414:FO-5" author="zimin-vv">
+        <sql>
+            INSERT INTO menu_item_category(name)
+            VALUES ('Еда'),
+                   ('Бургеры'),
+                   ('Шаурма'),
+                   ('Салаты'),
+                   ('Напитки'),
+                   ('Газированные напитки'),
+                   ('Негазированные напитки'),
+                   ('Кофе'),
+                   ('Чай')
+        </sql>
+    </changeSet>
     
 </databaseChangeLog>
