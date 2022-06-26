@@ -9,4 +9,5 @@ import ru.zimins.foodorder.model.MenuItemCategory;
 @Repository
 public interface MenuItemCategoryRepository extends JpaRepository<MenuItemCategory, Long> {
     Page<MenuItemCategory> findAllByNameContainsIgnoreCase(String name, Pageable pageable);
+    MenuItemCategory findByNameIgnoreCase(String name);
 }

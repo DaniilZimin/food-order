@@ -160,16 +160,16 @@
             <column name="composition" type="varchar(128)">
                 <constraints nullable="false" unique="false"/>
             </column>
-            <column name="kcal" type="smallint">
+            <column name="kcal" type="double">
                 <constraints nullable="false" unique="false"/>
             </column>
-            <column name="proteins" type="smallint">
+            <column name="proteins" type="double">
                 <constraints nullable="false" unique="false"/>
             </column>
-            <column name="fats" type="smallint">
+            <column name="fats" type="double">
                 <constraints nullable="false" unique="false"/>
             </column>
-            <column name="carbohydrates" type="smallint">
+            <column name="carbohydrates" type="double">
                 <constraints nullable="false" unique="false"/>
             </column>
             <column name="restaurant_id" type="bigint">

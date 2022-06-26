@@ -45,19 +45,19 @@ public class MenuItem extends AbstractLongPersistable {
 
     @NotNull
     @Column(name = "kcal")
-    private Short kcal;
+    private Double kcal;
 
     @NotNull
     @Column(name = "proteins")
-    private Short proteins;
+    private Double proteins;
 
     @NotNull
     @Column(name = "fats")
-    private Short fats;
+    private Double fats;
 
     @NotNull
     @Column(name = "carbohydrates")
-    private Short carbohydrates;
+    private Double carbohydrates;
 
     @NotNull
     @ManyToOne

@@ -49,9 +49,8 @@ public class RestaurantChainServiceImpl implements RestaurantChainService {
 
     @Override
     public RestaurantChain update(RestaurantChain model) {
-        findById(model.getId()).setName(model.getName());
-
-        return repository.save(findById(model.getId()));
+        findById(model.getId());
+        return repository.save(model);
     }
 
     @Override
@@ -59,7 +58,7 @@ public class RestaurantChainServiceImpl implements RestaurantChainService {
         RestaurantChain restaurantChain = findById(id);
 
         if (!CollectionUtils.isEmpty(restaurantChain.getRestaurants())) {
-            throw new ValidationException("В сети ресторанов '%s' есть рестораны, поэтому удалить её не удалось".formatted(restaurantChain.getName()));
+            throw new ValidationException("В сети ресторанов '%s' есть рестораны, поэтому удалить её нельзя".formatted(restaurantChain.getName()));
         }
 
         repository.deleteById(id);

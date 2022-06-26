@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
+import ru.zimins.foodorder.exception.ValidationException;
 import ru.zimins.foodorder.model.MenuItem;
 import ru.zimins.foodorder.model.MenuItemCategory;
 import ru.zimins.foodorder.model.Restaurant;
@@ -35,14 +36,16 @@ public class MenuItemServiceImpl implements MenuItemService {
     public MenuItem create(MenuItem model) {
         if (model.getMenuItemCategory() != null && model.getRestaurant() != null) {
 
-            MenuItem menuItem = repository.save(model);
-
             MenuItemCategory menuItemCategory = getMenuItemCategory(model);
+
+            Restaurant restaurant = getRestaurant(model);
+
+            validate(model, restaurant, menuItemCategory);
+
+            MenuItem menuItem = repository.save(model);
 
             menuItemCategory.addMenuItem(menuItem);
             menuItemCategoryRepository.save(menuItemCategory);
-
-            Restaurant restaurant = getRestaurant(model);
 
             restaurant.addMenuItem(menuItem);
             restaurantRepository.save(restaurant);
@@ -73,57 +76,19 @@ public class MenuItemServiceImpl implements MenuItemService {
 
     @Override
     public MenuItem update(MenuItem model) {
-        MenuItem menuItem = findById(model.getId());
+        findById(model.getId());
 
-        if (model.getName() != null) {
-            menuItem.setName(model.getName());
+        if (model.getRestaurant() == null) {
+            throw new NotFoundException("Укажите ресторан");
         }
 
-        if (model.getDescription() != null) {
-            menuItem.setDescription(model.getDescription());
+        if (model.getMenuItemCategory() == null) {
+            throw new NotFoundException("Укажите категорию пункта меню");
         }
 
-        if (model.getPrice() != null) {
-            menuItem.setPrice(model.getPrice());
-        }
+        validate(model, getRestaurant(model), getMenuItemCategory(model));
 
-        if (model.getWeight() != null) {
-            menuItem.setWeight(model.getWeight());
-        }
-
-        if (model.getUnit() != null) {
-            menuItem.setUnit(model.getUnit());
-        }
-
-        if (model.getComposition() != null) {
-            menuItem.setComposition(model.getComposition());
-        }
-
-        if (model.getKcal() != null) {
-            menuItem.setKcal(model.getKcal());
-        }
-
-        if (model.getProteins() != null) {
-            menuItem.setProteins(model.getProteins());
-        }
-
-        if (model.getFats() != null) {
-            menuItem.setFats(model.getFats());
-        }
-
-        if (model.getCarbohydrates() != null) {
-            menuItem.setCarbohydrates(model.getCarbohydrates());
-        }
-
-        if (model.getMenuItemCategory() != null) {
-            menuItem.setMenuItemCategory(getMenuItemCategory(model));
-        }
-
-        if (model.getRestaurant() != null) {
-            menuItem.setRestaurant(getRestaurant(model));
-        }
-
-        return repository.save(menuItem);
+        return repository.save(model);
     }
 
     @Override
@@ -144,8 +109,7 @@ public class MenuItemServiceImpl implements MenuItemService {
         Long id = model.getRestaurant().getId();
         assert id != null;
 
-        return restaurantRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Ресторан с id = %d не найден".formatted(id)));
+        return getRestaurant(id);
     }
 
     private MenuItemCategory getMenuItemCategory(MenuItem model) {
@@ -155,4 +119,20 @@ public class MenuItemServiceImpl implements MenuItemService {
         return menuItemCategoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Категория пункта меню с id = %d не найдена".formatted(id)));
     }
-}
+
+    private void validate(MenuItem model, Restaurant restaurant, MenuItemCategory menuItemCategory) {
+        String name = model.getName();
+
+        if (repository.existsByNameIgnoreCaseAndRestaurant(name, restaurant)) {
+            throw new ValidationException("Пункт меню '%s' уже есть в ресторане %s".formatted(name, restaurant.getName()));
+        }
+
+        if (repository.existsByNameIgnoreCaseAndMenuItemCategory(name, menuItemCategory)) {
+            throw new ValidationException("Пункт меню '%s' уже есть в категории %s".formatted(name, menuItemCategory.getName()));
+        }
+
+        if (menuItemCategory.getRestaurant() != restaurant || menuItemCategory.getRestaurant() != null) {
+            throw new ValidationException("Категория пункта меню '%s' отсутствует в ресторане %s и не является общей"
+                    .formatted(menuItemCategory.getName(), restaurant.getName()));
+        }
+    }}

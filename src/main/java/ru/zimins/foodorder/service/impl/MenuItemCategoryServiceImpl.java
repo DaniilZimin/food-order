@@ -30,16 +30,22 @@ public class MenuItemCategoryServiceImpl implements MenuItemCategoryService {
 
     @Override
     public MenuItemCategory create(MenuItemCategory model) {
+        Restaurant restaurant = null;
+
         if (model.getRestaurant() != null) {
-            Restaurant restaurant = getRestaurant(model);
+            restaurant = getRestaurant(model);
+        }
 
-            MenuItemCategory menuItemCategory = repository.save(model);
+        validate(model, restaurant);
 
+        MenuItemCategory menuItemCategory = repository.save(model);
+
+        if (restaurant != null) {
             restaurant.addMenuItemCategory(menuItemCategory);
             restaurantRepository.save(restaurant);
         }
 
-        return repository.save(model);
+        return menuItemCategory;
     }
 
     @Override
@@ -49,22 +55,18 @@ public class MenuItemCategoryServiceImpl implements MenuItemCategoryService {
 
     @Override
     public Page<MenuItemCategory> findPage(String nameFilter, Pageable pageable) {
-        return repository.findAllByNameContainsIgnoreCase(nameFilter, pageable);
+        return nameFilter == null
+                ? repository.findAll(pageable)
+                : repository.findAllByNameContainsIgnoreCase(nameFilter, pageable);
     }
 
     @Override
     public MenuItemCategory update(MenuItemCategory model) {
-        MenuItemCategory menuItemCategory = getMenuItemCategory(model.getId());
+        getMenuItemCategory(model.getId());
 
-        if (model.getName() != null) {
-            menuItemCategory.setName(model.getName());
-        }
+        validate(model, getRestaurant(model));
 
-        if (model.getRestaurant() != null) {
-            menuItemCategory.setRestaurant(getRestaurant(model));
-        }
-
-        return repository.save(menuItemCategory);
+        return repository.save(model);
     }
 
     @Override
@@ -76,7 +78,7 @@ public class MenuItemCategoryServiceImpl implements MenuItemCategoryService {
         }
 
         if (!CollectionUtils.isEmpty(menuItemCategory.getMenuItems())) {
-            throw new ValidationException("В категории '%s' есть пункты меню, поэтому удалить её не удалось".formatted(menuItemCategory.getName()));
+            throw new ValidationException("В категории '%s' есть пункты меню, поэтому удалить её нельзя".formatted(menuItemCategory.getName()));
         }
 
         repository.deleteById(id);
@@ -95,5 +97,21 @@ public class MenuItemCategoryServiceImpl implements MenuItemCategoryService {
     private MenuItemCategory getMenuItemCategory(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Категория пункта меню с id = %d не найдена".formatted(id)));
+    }
+
+    private void validate(MenuItemCategory model, Restaurant restaurant) {
+        String name = model.getName();
+
+        MenuItemCategory byNameIgnoreCase = repository.findByNameIgnoreCase(name);
+
+        if (byNameIgnoreCase != null) {
+            if (byNameIgnoreCase.getRestaurant() == null) {
+                throw new ValidationException("Категория пунктов меню '%s' является общей".formatted(name));
+            }
+            if (restaurant == byNameIgnoreCase.getRestaurant()) {
+                assert restaurant != null;
+                throw new ValidationException("Категория пунктов меню с названием '%s' уже есть в ресторане %s".formatted(name, restaurant.getName()));
+            }
+        }
     }
 }

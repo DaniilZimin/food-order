@@ -42,21 +42,29 @@ public class RestaurantServiceImpl implements RestaurantService {
             throw new ValidationException("Ресторан с адресом = '%s' уже есть в базе данных".formatted(model.getAddress()));
         }
 
-        Restaurant restaurant = repository.save(model);
+        RestaurantChain restaurantChain = null;
 
         if (model.getRestaurantChain() != null) {
-            RestaurantChain restaurantChain = getRestaurantChain(model);
+            restaurantChain = getRestaurantChain(model);
+        }
 
+        City city;
+
+        if (model.getCity() != null) {
+            city = getCity(model);
+        } else {
+            throw new NotFoundException("Укажите Город");
+        }
+
+        Restaurant restaurant = repository.save(model);
+
+        if (restaurantChain != null) {
             restaurantChain.addRestaurant(restaurant);
             restaurantChainRepository.save(restaurantChain);
         }
 
-        if (model.getCity() != null) {
-            City city = getCity(model);
-
-            city.addRestaurant(restaurant);
-            cityRepository.save(city);
-        }
+        city.addRestaurant(restaurant);
+        cityRepository.save(city);
 
         return restaurant;
     }
@@ -79,25 +87,19 @@ public class RestaurantServiceImpl implements RestaurantService {
 
     @Override
     public Restaurant update(Restaurant model) {
-        Restaurant restaurant = findById(model.getId());
+        findById(model.getId());
 
-        if (model.getName() != null) {
-            restaurant.setName(model.getName());
+        if (model.getCity() == null) {
+            throw new NotFoundException("Укажите Город");
         }
 
-        if (model.getAddress() != null) {
-            restaurant.setAddress(model.getAddress());
-        }
+        getCity(model);
 
         if (model.getRestaurantChain() != null) {
-            restaurant.setRestaurantChain(getRestaurantChain(model));
+            getRestaurantChain(model);
         }
 
-        if (model.getCity() != null) {
-            restaurant.setCity(getCity(model));
-        }
-
-        return repository.save(restaurant);
+        return repository.save(model);
     }
 
     @Override
