@@ -48,7 +48,7 @@ public class MenuItemCategoryController {
 
     @Operation(summary = "Страница категорий пунктов меню", description = "Возвращает страницу категорий пунктов меню по указанным параметрам")
     @GetMapping("page")
-    public ResponseEntity<PageDto<MenuItemCategoryDto>> findPage(@RequestParam String nameFilter, Pageable pageable) {
+    public ResponseEntity<PageDto<MenuItemCategoryDto>> findPage(@RequestParam(required = false) String nameFilter, Pageable pageable) {
         PageDto<MenuItemCategoryDto> menuItemCategoryPage = mapper.toPageDto(service.findPage(nameFilter, pageable));
 
         return ResponseEntity.ok(menuItemCategoryPage);

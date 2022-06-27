@@ -20,13 +20,13 @@ public class MenuItemDto {
 
     private String composition;
 
-    private Short kcal;
+    private Double kcal;
 
-    private Short proteins;
+    private Double proteins;
 
-    private Short fats;
+    private Double fats;
 
-    private Short carbohydrates;
+    private Double carbohydrates;
 
     private MenuItemCategoryDto menuItemCategory;
 
