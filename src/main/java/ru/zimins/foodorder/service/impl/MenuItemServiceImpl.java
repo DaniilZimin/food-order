@@ -123,16 +123,12 @@ public class MenuItemServiceImpl implements MenuItemService {
     private void validate(MenuItem model, Restaurant restaurant, MenuItemCategory menuItemCategory) {
         String name = model.getName();
 
-        if (repository.existsByNameIgnoreCaseAndRestaurant(name, restaurant)) {
-            throw new ValidationException("Пункт меню '%s' уже есть в ресторане %s".formatted(name, restaurant.getName()));
-        }
-
-        if (repository.existsByNameIgnoreCaseAndMenuItemCategory(name, menuItemCategory)) {
-            throw new ValidationException("Пункт меню '%s' уже есть в категории %s".formatted(name, menuItemCategory.getName()));
-        }
-
-        if (menuItemCategory.getRestaurant() != restaurant || menuItemCategory.getRestaurant() != null) {
+        if (menuItemCategory.getRestaurant() != restaurant && menuItemCategory.getRestaurant() != null) {
             throw new ValidationException("Категория пункта меню '%s' отсутствует в ресторане %s и не является общей"
                     .formatted(menuItemCategory.getName(), restaurant.getName()));
+        }
+
+        if (repository.existsByNameIgnoreCaseAndRestaurant(name, restaurant)) {
+            throw new ValidationException("Пункт меню '%s' уже есть в ресторане %s".formatted(name, restaurant.getName()));
         }
     }}

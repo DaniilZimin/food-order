@@ -6,8 +6,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import ru.zimins.foodorder.model.MenuItemCategory;
 
+import java.util.List;
+
 @Repository
 public interface MenuItemCategoryRepository extends JpaRepository<MenuItemCategory, Long> {
     Page<MenuItemCategory> findAllByNameContainsIgnoreCase(String name, Pageable pageable);
-    MenuItemCategory findByNameIgnoreCase(String name);
+    List<MenuItemCategory> findByNameIgnoreCase(String name);
 }
