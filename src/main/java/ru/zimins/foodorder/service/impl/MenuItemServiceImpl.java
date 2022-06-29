@@ -34,26 +34,25 @@ public class MenuItemServiceImpl implements MenuItemService {
 
     @Override
     public MenuItem create(MenuItem model) {
-        if (model.getMenuItemCategory() != null && model.getRestaurant() != null) {
-
-            MenuItemCategory menuItemCategory = getMenuItemCategory(model);
-
-            Restaurant restaurant = getRestaurant(model);
-
-            validate(model, restaurant, menuItemCategory);
-
-            MenuItem menuItem = repository.save(model);
-
-            menuItemCategory.addMenuItem(menuItem);
-            menuItemCategoryRepository.save(menuItemCategory);
-
-            restaurant.addMenuItem(menuItem);
-            restaurantRepository.save(restaurant);
-
-            return menuItem;
+        if (model.getMenuItemCategory() == null || model.getRestaurant() == null) {
+            return repository.save(model);
         }
 
-        return repository.save(model);
+        MenuItemCategory menuItemCategory = getMenuItemCategory(model);
+
+        Restaurant restaurant = getRestaurant(model);
+
+        validate(model, restaurant, menuItemCategory);
+
+        MenuItem menuItem = repository.save(model);
+
+        menuItemCategory.addMenuItem(menuItem);
+        menuItemCategoryRepository.save(menuItemCategory);
+
+        restaurant.addMenuItem(menuItem);
+        restaurantRepository.save(restaurant);
+
+        return menuItem;
     }
 
     @Override
@@ -121,14 +120,15 @@ public class MenuItemServiceImpl implements MenuItemService {
     }
 
     private void validate(MenuItem model, Restaurant restaurant, MenuItemCategory menuItemCategory) {
-        String name = model.getName();
+        String menuItemName = model.getName();
+        String restaurantName = restaurant.getName();
 
         if (menuItemCategory.getRestaurant() != restaurant && menuItemCategory.getRestaurant() != null) {
             throw new ValidationException("Категория пункта меню '%s' отсутствует в ресторане %s и не является общей"
-                    .formatted(menuItemCategory.getName(), restaurant.getName()));
+                    .formatted(menuItemCategory.getName(), restaurantName));
         }
 
-        if (repository.existsByNameIgnoreCaseAndRestaurant(name, restaurant)) {
-            throw new ValidationException("Пункт меню '%s' уже есть в ресторане %s".formatted(name, restaurant.getName()));
+        if (repository.existsByNameIgnoreCaseAndRestaurant(menuItemName, restaurant)) {
+            throw new ValidationException("Пункт меню '%s' уже есть в ресторане %s".formatted(menuItemName, restaurantName));
         }
     }}

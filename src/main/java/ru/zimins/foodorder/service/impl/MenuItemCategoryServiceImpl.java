@@ -33,7 +33,11 @@ public class MenuItemCategoryServiceImpl implements MenuItemCategoryService {
     public MenuItemCategory create(MenuItemCategory model) {
         Restaurant restaurant = getRestaurant(model);
 
-        MenuItemCategory menuItemCategory = validateAndSave(model, restaurant);
+        List<MenuItemCategory> categories = repository.findByNameIgnoreCase(model.getName());
+
+        validate(model, restaurant, categories);
+
+        MenuItemCategory menuItemCategory = saveCategory(model, restaurant, categories);
 
         if (restaurant != null) {
             restaurant.addMenuItemCategory(menuItemCategory);
@@ -63,7 +67,13 @@ public class MenuItemCategoryServiceImpl implements MenuItemCategoryService {
             throw new ValidationException("Общую категорию изменять нельзя!");
         }
 
-        return validateAndSave(model, getRestaurant(model));
+        Restaurant restaurant = getRestaurant(model);
+
+        List<MenuItemCategory> categories = repository.findByNameIgnoreCase(model.getName());
+
+        validate(model, restaurant, categories);
+
+        return saveCategory(model, restaurant, categories);
     }
 
     @Override
@@ -75,7 +85,8 @@ public class MenuItemCategoryServiceImpl implements MenuItemCategoryService {
         }
 
         if (!CollectionUtils.isEmpty(menuItemCategory.getMenuItems())) {
-            throw new ValidationException("В категории '%s' есть пункты меню, поэтому удалить её нельзя".formatted(menuItemCategory.getName()));
+            throw new ValidationException("В категории '%s' есть пункты меню, поэтому удалить её нельзя"
+                    .formatted(menuItemCategory.getName()));
         }
 
         repository.deleteById(id);
@@ -84,14 +95,15 @@ public class MenuItemCategoryServiceImpl implements MenuItemCategoryService {
     }
 
     private Restaurant getRestaurant(MenuItemCategory model) {
-        if (model.getRestaurant() != null) {
-            Long id = model.getRestaurant().getId();
-            assert id != null;
-
-            return restaurantRepository.findById(id)
-                    .orElseThrow(() -> new NotFoundException("Ресторан с id = %d не найден".formatted(id)));
+        if (model.getRestaurant() == null) {
+            return null;
         }
-        return null;
+
+        Long id = model.getRestaurant().getId();
+        assert id != null;
+
+        return restaurantRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Ресторан с id = %d не найден".formatted(id)));
     }
 
     private MenuItemCategory getMenuItemCategory(Long id) {
@@ -99,42 +111,47 @@ public class MenuItemCategoryServiceImpl implements MenuItemCategoryService {
                 .orElseThrow(() -> new NotFoundException("Категория пункта меню с id = %d не найдена".formatted(id)));
     }
 
-    private MenuItemCategory validateAndSave(MenuItemCategory model, Restaurant restaurant) {
-        String name = model.getName();
+    private void validate(MenuItemCategory model, Restaurant restaurant, List<MenuItemCategory> categories) {
+        String categoryName = model.getName();
 
-        List<MenuItemCategory> byNameIgnoreCase = repository.findByNameIgnoreCase(name);
+        if (CollectionUtils.isEmpty(categories)) {
+            return;
+        }
 
-        if (!byNameIgnoreCase.isEmpty()) {
-            for (MenuItemCategory menuItemCategory : byNameIgnoreCase) {
-                if (menuItemCategory.getRestaurant() == null) {
-                    throw new ValidationException("Категория пунктов меню '%s' является общей".formatted(name));
+        for (MenuItemCategory menuItemCategory : categories) {
+            if (menuItemCategory.getRestaurant() == null) {
+                throw new ValidationException("Категория пунктов меню '%s' является общей".formatted(categoryName));
+            }
+
+            if (menuItemCategory.getRestaurant() == restaurant) {
+                assert restaurant != null;
+                throw new ValidationException("Категория пунктов меню с названием '%s' уже есть в ресторане %s"
+                        .formatted(categoryName, restaurant.getName()));
+            }
+        }
+    }
+
+    private MenuItemCategory saveCategory(MenuItemCategory model, Restaurant restaurant, List<MenuItemCategory> categories) {
+        MenuItemCategory savedCategory = repository.save(model);
+
+        if (restaurant != null || CollectionUtils.isEmpty(categories)) {
+            return savedCategory;
+        }
+
+        for (MenuItemCategory menuItemCategory : categories) {
+            List<MenuItem> menuItems = menuItemCategory.getMenuItems();
+
+            if (menuItems != null) {
+                for (MenuItem menuItem : menuItems) {
+                    menuItem.setMenuItemCategory(savedCategory);
                 }
+            }
 
-                if (menuItemCategory.getRestaurant() == restaurant) {
-                    assert restaurant != null;
-                    throw new ValidationException("Категория пунктов меню с названием '%s' уже есть в ресторане %s".formatted(name, restaurant.getName()));
-                }
+            if (menuItemCategory.getRestaurant() != null) {
+                repository.delete(menuItemCategory);
             }
         }
 
-        MenuItemCategory save = repository.save(model);
-
-        if (restaurant == null && !byNameIgnoreCase.isEmpty()) {
-            for (MenuItemCategory menuItemCategory : byNameIgnoreCase) {
-                List<MenuItem> menuItems = menuItemCategory.getMenuItems();
-
-                if (menuItems != null) {
-                    for (MenuItem menuItem : menuItems) {
-                        menuItem.setMenuItemCategory(save);
-                    }
-                }
-
-                if (menuItemCategory.getRestaurant() != null) {
-                    repository.delete(menuItemCategory);
-                }
-            }
-        }
-
-        return save;
+        return savedCategory;
     }
 }
