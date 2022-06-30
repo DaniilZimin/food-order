@@ -33,7 +33,7 @@
             <column name="id" type="bigserial">
                 <constraints primaryKey="true" nullable="false" unique="true"/>
             </column>
-            <column name="name" type="varchar(64)">
+            <column name="name" type="varchar(128)">
                 <constraints nullable="false" unique="true"/>
             </column>
         </createTable>
@@ -50,10 +50,10 @@
             <column name="id" type="bigserial">
                 <constraints primaryKey="true" nullable="false" unique="true"/>
             </column>
-            <column name="name" type="varchar(64)">
+            <column name="name" type="varchar(128)">
                 <constraints nullable="false" unique="true"/>
             </column>
-            <column name="type" type="varchar(128)">
+            <column name="type" type="varchar(255)">
                 <constraints nullable="false" unique="false"/>
             </column>
             <column name="code_okato" type="int">
@@ -73,7 +73,7 @@
             <column name="id" type="bigserial">
                 <constraints primaryKey="true" nullable="false" unique="true"/>
             </column>
-            <column name="name" type="varchar(64)">
+            <column name="name" type="varchar(128)">
                 <constraints nullable="false" unique="true"/>
             </column>
             <column name="subject_id" type="bigint">
@@ -93,7 +93,7 @@
             <column name="id" type="bigserial">
                 <constraints primaryKey="true" nullable="false" unique="true"/>
             </column>
-            <column name="name" type="varchar(64)">
+            <column name="name" type="varchar(128)">
                 <constraints nullable="false" unique="true"/>
             </column>
             <column name="restaurant_chain_id" type="bigint">
@@ -119,7 +119,7 @@
             <column name="id" type="bigserial">
                 <constraints primaryKey="true" nullable="false" unique="true"/>
             </column>
-            <column name="name" type="varchar(64)">
+            <column name="name" type="varchar(128)">
                 <constraints nullable="false" unique="false"/>
             </column>
             <column name="restaurant_id" type="bigint">
@@ -139,10 +139,10 @@
             <column name="id" type="bigserial">
                 <constraints primaryKey="true" nullable="false" unique="true"/>
             </column>
-            <column name="name" type="varchar(64)">
+            <column name="name" type="varchar(255)">
                 <constraints nullable="false" unique="false"/>
             </column>
-            <column name="description" type="varchar(256)">
+            <column name="description" type="varchar(512)">
                 <constraints nullable="false" unique="false"/>
             </column>
             <column name="menu_item_category_id" type="bigint">
@@ -157,7 +157,7 @@
             <column name="unit" type="varchar(8)">
                 <constraints nullable="false" unique="false"/>
             </column>
-            <column name="composition" type="varchar(128)">
+            <column name="composition" type="varchar(512)">
                 <constraints nullable="false" unique="false"/>
             </column>
             <column name="kcal" type="double">
