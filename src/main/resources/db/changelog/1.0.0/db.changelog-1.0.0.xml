@@ -192,5 +192,29 @@
                    ('Чай')
         </sql>
     </changeSet>
-    
+
+    <changeSet id="202207100954:FO-7" author="zimin-iv">
+        <preConditions>
+            <tableExists tableName="user_account"/>
+        </preConditions>
+
+        <addColumn tableName="user_account">
+            <column name="password" type="varchar(128)" defaultValue="{noop}qwerty">
+                <constraints nullable="false"/>
+            </column>
+            <column name="full_name" type="varchar(256)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="varchar(128)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="phone" type="varchar(32)">
+                <constraints unique="true"/>
+            </column>
+            <column name="birth_date" type="date"/>
+            <column name="role" type="varchar(128)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>
